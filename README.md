@@ -1,14 +1,14 @@
 ### necessary package
 
-> dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
-> dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
-> dotnet add package Microsoft.EntityFrameworkCore.Sqlite
-> dotnet add package Microsoft.EntityFrameworkCore.Tools
+> - dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+> - dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+> - dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+> - dotnet add package Microsoft.EntityFrameworkCore.Tools
 
 ### migration
 
-> dotnet ef migrations add InitialCreate
-> dotnet ef database update
+> - dotnet ef migrations add InitialCreate
+> - dotnet ef database update
 
 ---
 
@@ -177,3 +177,47 @@ These claims come from:
 - JWT tokens are cryptographically signed but don't contain sensitive data like passwords
 
 ---
+
+## Explanation of Identity Configuration Code:
+
+```
+// Configure Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+```
+
+1. `AddIdentity<ApplicationUser, IdentityRole>()`
+   This line registers the ASP.NET Core Identity services in the dependency injection container with two type parameters:
+
+- ApplicationUser: This is your custom user class that inherits from IdentityUser.
+  > - IdentityUser provides standard properties like Id, UserName, Email, PasswordHash, etc.
+  > - ApplicationUser extends this with your custom properties like FirstName and LastName.
+- IdentityRole: This is the class used for representing roles in the system.
+  > - You could create a custom role class, but here you're using the built-in IdentityRole which provides properties like Id and Name.
+  >   This method also registers core Identity services like:
+- UserManager<ApplicationUser> - For managing users
+- SignInManager<ApplicationUser> - For handling sign-in/sign-out
+- RoleManager<IdentityRole> - For managing roles
+
+2. `.AddEntityFrameworkStores<ApplicationDbContext>()`
+   This configures Identity to use Entity Framework Core as the persistence mechanism:
+
+- It tells Identity to use your ApplicationDbContext for storing and retrieving identity-related data.
+- It automatically creates the necessary tables in your database:
+  > - AspNetUsers - Stores user data
+  > - AspNetRoles - Stores role definitions
+  > - AspNetUserRoles - Stores user to role mappings
+  > - AspNetUserClaims - Stores user claims
+  > - AspNetUserLogins - Stores external login information
+  > - AspNetUserTokens - Stores tokens like password reset or email confirmation tokens
+
+3. `.AddDefaultTokenProviders()`
+   This registers the default token providers used by Identity for operations that require security tokens:
+   > - Email confirmation tokens: Used to verify email addresses when users register
+   > - Password reset tokens: Used in password recovery flows
+   > - Two-factor authentication tokens: Used for 2FA authentication
+   > - Change email tokens: Used when users want to change their email
+   > - Phone number verification tokens: Used to verify phone numbers
+
+#### This token is nothing to do with JWT Token.
