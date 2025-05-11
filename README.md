@@ -221,3 +221,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
    > - Phone number verification tokens: Used to verify phone numbers
 
 #### This token is nothing to do with JWT Token.
+
+---
+
+## The difference between AddIdentity<User, Role> add AddIdentityCore<User>
+
+- AddIdentityCore<User> adds only the minimal services required for user management, such as password hashing and user store integration, without including features like role management, claims management, or UI-related services (e.g., Razor Pages for login/registration).
+- AddIdentity<User, Role> (or its simpler overload AddIdentity<User>) includes a broader set of services, such as role management, user management APIs, and support for features like two-factor authentication, external login providers, and UI scaffolding. These are often unnecessary for a simple JWT-based API where you're only handling authentication via tokens.
+  > AddIdentityCore was chosen for its minimal footprint, flexibility with an existing Users table, and alignment with a JWT-based API that doesn't require the full ASP.NET Core Identity feature set. It provides just enough functionality for secure user authentication while keeping the implementation lean and focused. If you need additional Identity features, you can switch to AddIdentity, but you may need to adjust the database schema and configuration accordingly.
